@@ -57,13 +57,13 @@ internal final class Keychain {
         if let string = String(data: data, encoding: .utf8) {
             return string
         } else {
-            throw KeychainError.itemNotFound
+            throw Valet.KeychainError.itemNotFound
         }
     }
     
     internal static func object(forKey key: String, options: [String : AnyHashable]) throws -> Data {
         guard !key.isEmpty else {
-            throw KeychainError.emptyKey
+            throw Valet.KeychainError.emptyKey
         }
         
         var secItemQuery = options
@@ -83,11 +83,11 @@ internal final class Keychain {
     
     internal static func setObject(_ object: Data, forKey key: String, options: [String: AnyHashable]) throws {
         guard !key.isEmpty else {
-            throw KeychainError.emptyKey
+            throw Valet.KeychainError.emptyKey
         }
         
         guard !object.isEmpty else {
-            throw KeychainError.emptyValue
+            throw Valet.KeychainError.emptyValue
         }
         
         var secItemQuery = options
@@ -112,7 +112,7 @@ internal final class Keychain {
     
     internal static func removeObject(forKey key: String, options: [String : AnyHashable]) throws {
         guard !key.isEmpty else {
-            throw KeychainError.emptyKey
+            throw Valet.KeychainError.emptyKey
         }
         
         var secItemQuery = options
@@ -160,7 +160,7 @@ internal final class Keychain {
                 return Set()
             }
 
-        } catch KeychainError.itemNotFound {
+        } catch Valet.KeychainError.itemNotFound {
             // Nothing was found. That's fine.
             return Set()
         } catch {
@@ -171,45 +171,45 @@ internal final class Keychain {
     
     // MARK: Migration
 
-    internal static func migrateObjects(matching query: [String : AnyHashable], into destinationAttributes: [String : AnyHashable], compactMap: (MigratableKeyValuePair<AnyHashable>) throws -> MigratableKeyValuePair<String>?) throws {
+    internal static func migrateObjects(matching query: [String : AnyHashable], into destinationAttributes: [String : AnyHashable], compactMap: (Valet.MigratableKeyValuePair<AnyHashable>) throws -> Valet.MigratableKeyValuePair<String>?) throws {
         guard !query.isEmpty else {
             // Migration requires secItemQuery to contain values.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecMatchLimit as String] as? String as CFString? != kSecMatchLimitOne else {
             // Migration requires kSecMatchLimit to be set to kSecMatchLimitAll.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecReturnData as String] as? Bool != true else {
             // kSecReturnData is not supported in a migration query.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecReturnAttributes as String] as? Bool != false else {
             // Migration requires kSecReturnAttributes to be set to kCFBooleanTrue.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecReturnRef as String] as? Bool != true else {
             // kSecReturnRef is not supported in a migration query.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecReturnPersistentRef as String] as? Bool != false else {
             // Migration requires kSecReturnPersistentRef to be set to kCFBooleanTrue.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecClass as String] as? String as CFString? == kSecClassGenericPassword else {
             // Migration requires kSecClass to be set to kSecClassGenericPassword to avoid data loss.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         guard query[kSecAttrAccessControl as String] == nil else {
             // kSecAttrAccessControl is not supported in a migration query. Keychain items can not be migrated en masse from the Secure Enclave.
-            throw MigrationError.invalidQuery
+            throw Valet.MigrationError.invalidQuery
         }
 
         var secItemQuery = query
@@ -228,14 +228,14 @@ internal final class Keychain {
             retrievedItemsToMigrate = multipleMatches
 
         } else {
-            throw MigrationError.dataToMigrateInvalid
+            throw Valet.MigrationError.dataToMigrateInvalid
         }
 
         // Now that we have the persistent refs with attributes, get the data associated with each keychain entry.
         var retrievedItemsToMigrateWithData = [[String : AnyHashable]]()
         for retrievedItem in retrievedItemsToMigrate {
             guard let retrievedPersistentRef = retrievedItem[kSecValuePersistentRef as String] else {
-                throw KeychainError.couldNotAccessKeychain
+                throw Valet.KeychainError.couldNotAccessKeychain
 
             }
 
@@ -247,13 +247,13 @@ internal final class Keychain {
             do {
                 let data: Data = try SecItem.copy(matching: retrieveDataQuery)
                 guard !data.isEmpty else {
-                    throw MigrationError.dataToMigrateInvalid
+                    throw Valet.MigrationError.dataToMigrateInvalid
                 }
 
                 var retrievedItemToMigrateWithData = retrievedItem
                 retrievedItemToMigrateWithData[kSecValueData as String] = data
                 retrievedItemsToMigrateWithData.append(retrievedItemToMigrateWithData)
-            } catch KeychainError.itemNotFound {
+            } catch Valet.KeychainError.itemNotFound {
                 // It is possible for metadata-only items to exist in the keychain that do not have data associated with them. Ignore this entry.
                 continue
 
@@ -266,7 +266,7 @@ internal final class Keychain {
         var keyValuePairsToMigrate = [String: Data]()
         for keychainEntry in retrievedItemsToMigrateWithData {
             guard let key = keychainEntry[kSecAttrAccount as String] else {
-                throw MigrationError.keyToMigrateInvalid
+                throw Valet.MigrationError.keyToMigrateInvalid
             }
 
             guard key as? String != Keychain.canaryKey else {
@@ -276,30 +276,30 @@ internal final class Keychain {
 
             guard let data = keychainEntry[kSecValueData as String] as? Data else {
                 // This state should be impossible, per Apple's documentation for `kSecValueData`.
-                throw MigrationError.dataToMigrateInvalid
+                throw Valet.MigrationError.dataToMigrateInvalid
             }
 
-            guard let migratablePair = try compactMap(MigratableKeyValuePair<AnyHashable>(key: key, value: data)) else {
+            guard let migratablePair = try compactMap(Valet.MigratableKeyValuePair<AnyHashable>(key: key, value: data)) else {
                 // We don't care about this key. Move along.
                 continue
             }
 
             guard !migratablePair.key.isEmpty else {
-                throw MigrationError.keyToMigrateInvalid
+                throw Valet.MigrationError.keyToMigrateInvalid
             }
 
             guard keyValuePairsToMigrate[migratablePair.key] == nil else {
-                throw MigrationError.duplicateKeyToMigrate
+                throw Valet.MigrationError.duplicateKeyToMigrate
             }
 
             guard !migratablePair.value.isEmpty else {
-                throw MigrationError.dataToMigrateInvalid
+                throw Valet.MigrationError.dataToMigrateInvalid
             }
 
             if Keychain.performCopy(forKey: migratablePair.key, options: destinationAttributes) == errSecItemNotFound {
                 keyValuePairsToMigrate[migratablePair.key] = migratablePair.value
             } else {
-                throw MigrationError.keyToMigrateAlreadyExistsInValet
+                throw Valet.MigrationError.keyToMigrateAlreadyExistsInValet
             }
         }
 
@@ -324,9 +324,9 @@ internal final class Keychain {
         // Attempt migration.
         try migrateObjects(matching: query, into: destinationAttributes) { keychainKeyValuePair in
             guard let key = keychainKeyValuePair.key as? String else {
-                throw MigrationError.keyToMigrateInvalid
+                throw Valet.MigrationError.keyToMigrateInvalid
             }
-            return MigratableKeyValuePair(key: key, value: keychainKeyValuePair.value)
+            return Valet.MigratableKeyValuePair(key: key, value: keychainKeyValuePair.value)
         }
 
         // Remove data if requested.
@@ -336,7 +336,7 @@ internal final class Keychain {
             } catch {
                 revertMigration(into: destinationAttributes, keysInKeychainPreMigration: keysInKeychainPreMigration)
 
-                throw MigrationError.removalFailed
+                throw Valet.MigrationError.removalFailed
             }
 
             // We're done!

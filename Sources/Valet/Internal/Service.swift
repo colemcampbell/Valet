@@ -18,12 +18,12 @@ import Foundation
 
 
 internal enum Service: CustomStringConvertible, Equatable {
-    case standard(Identifier, Configuration)
-    case sharedGroup(SharedGroupIdentifier, Configuration)
+    case standard(Valet.Identifier, Configuration)
+    case sharedGroup(Valet.SharedGroupIdentifier, Configuration)
 
     #if os(macOS)
-    case standardOverride(service: Identifier, Configuration)
-    case sharedGroupOverride(service: SharedGroupIdentifier, Configuration)
+    case standardOverride(service: Valet.Identifier, Configuration)
+    case sharedGroupOverride(service: Valet.SharedGroupIdentifier, Configuration)
     #endif
 
     // MARK: Equatable
@@ -40,15 +40,15 @@ internal enum Service: CustomStringConvertible, Equatable {
 
     // MARK: Internal Static Methods
 
-    internal static func standard(with configuration: Configuration, identifier: Identifier, accessibilityDescription: String) -> String {
+    internal static func standard(with configuration: Configuration, identifier: Valet.Identifier, accessibilityDescription: String) -> String {
         "VAL_\(configuration.description)_initWithIdentifier:accessibility:_\(identifier)_\(accessibilityDescription)"
     }
 
-    internal static func sharedGroup(with configuration: Configuration, identifier: SharedGroupIdentifier, accessibilityDescription: String) -> String {
+    internal static func sharedGroup(with configuration: Configuration, identifier: Valet.SharedGroupIdentifier, accessibilityDescription: String) -> String {
         "VAL_\(configuration.description)_initWithSharedAccessGroupIdentifier:accessibility:_\(identifier.groupIdentifier)_\(accessibilityDescription)"
     }
 
-    internal static func sharedGroup(with configuration: Configuration, explicitlySetIdentifier identifier: Identifier, accessibilityDescription: String) -> String {
+    internal static func sharedGroup(with configuration: Configuration, explicitlySetIdentifier identifier: Valet.Identifier, accessibilityDescription: String) -> String {
         "VAL_\(configuration.description)_initWithSharedAccessGroupIdentifier:accessibility:_\(identifier)_\(accessibilityDescription)"
     }
 
