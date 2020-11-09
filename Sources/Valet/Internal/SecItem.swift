@@ -48,11 +48,11 @@ internal final class SecItem {
             } else {
                 // The query failed to pull out a value object of the desired type, but did find metadata matching this query.
                 // This can happen because either the query didn't ask for return data via [kSecReturnData : true], or because a metadata-only item existed in the keychain.
-                throw KeychainError.itemNotFound
+                throw Valet.KeychainError.itemNotFound
             }
             
         } else {
-            throw KeychainError(status: status)
+            throw Valet.KeychainError(status: status)
         }
     }
     
@@ -86,7 +86,7 @@ internal final class SecItem {
             // We're done!
             break
         default:
-            throw KeychainError(status: status)
+            throw Valet.KeychainError(status: status)
         }
     }
     
@@ -109,7 +109,7 @@ internal final class SecItem {
             // We're done!
             break
         default:
-            throw KeychainError(status: status)
+            throw Valet.KeychainError(status: status)
         }
     }
     
@@ -132,12 +132,12 @@ internal final class SecItem {
             // We're done!
             
         } else {
-            switch KeychainError(status: status) {
+            switch Valet.KeychainError(status: status) {
             case .couldNotAccessKeychain:
-                throw KeychainError.couldNotAccessKeychain
+                throw Valet.KeychainError.couldNotAccessKeychain
 
             case .missingEntitlement:
-                throw KeychainError.missingEntitlement
+                throw Valet.KeychainError.missingEntitlement
 
             case .emptyKey,
                  .emptyValue,

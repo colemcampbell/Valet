@@ -16,26 +16,27 @@
 
 import Foundation
 
-
-public struct Identifier: CustomStringConvertible {
-    
-    // MARK: Initialization
-    
-    public init?(nonEmpty string: String?) {
-        guard let string = string, !string.isEmpty else {
-            return nil
+extension Valet {
+    public struct Identifier: CustomStringConvertible {
+        
+        // MARK: Initialization
+        
+        public init?(nonEmpty string: String?) {
+            guard let string = string, !string.isEmpty else {
+                return nil
+            }
+            
+            backingString = string
         }
         
-        backingString = string
+        // MARK: CustomStringConvertible
+        
+        public var description: String {
+            return backingString
+        }
+        
+        // MARK: Private Properties
+        
+        private let backingString: String
     }
-    
-    // MARK: CustomStringConvertible
-    
-    public var description: String {
-        return backingString
-    }
-    
-    // MARK: Private Properties
-    
-    private let backingString: String
 }

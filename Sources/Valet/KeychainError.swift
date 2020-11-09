@@ -16,49 +16,49 @@
 
 import Foundation
 
+extension Valet {
+    @objc(VALKeychainError)
+    public enum KeychainError: Int, CaseIterable, CustomStringConvertible, Error, Equatable {
+        /// The keychain could not be accessed.
+        case couldNotAccessKeychain
+        /// User dismissed the user-presence prompt.
+        case userCancelled
+        /// No data was found for the requested key.
+        case itemNotFound
+        /// The application does not have the proper entitlements to perform the requested action.
+        /// This may be due to an Apple Keychain bug. As a workaround try running on a device that is not attached to a debugger.
+        /// - SeeAlso: https://forums.developer.apple.com/thread/4743
+        case missingEntitlement
+        /// The key provided is empty.
+        case emptyKey
+        /// The value provided is empty.
+        case emptyValue
 
-@objc(VALKeychainError)
-public enum KeychainError: Int, CaseIterable, CustomStringConvertible, Error, Equatable {
-    /// The keychain could not be accessed.
-    case couldNotAccessKeychain
-    /// User dismissed the user-presence prompt.
-    case userCancelled
-    /// No data was found for the requested key.
-    case itemNotFound
-    /// The application does not have the proper entitlements to perform the requested action.
-    /// This may be due to an Apple Keychain bug. As a workaround try running on a device that is not attached to a debugger.
-    /// - SeeAlso: https://forums.developer.apple.com/thread/4743
-    case missingEntitlement
-    /// The key provided is empty.
-    case emptyKey
-    /// The value provided is empty.
-    case emptyValue
+        init(status: OSStatus) {
+            switch status {
+            case errSecItemNotFound:
+                self = .itemNotFound
+            case errSecUserCanceled,
+                 errSecAuthFailed:
+                self = .userCancelled
+            case errSecMissingEntitlement:
+                self = .missingEntitlement
+            default:
+                self = .couldNotAccessKeychain
+            }
+        }
 
-    init(status: OSStatus) {
-        switch status {
-        case errSecItemNotFound:
-            self = .itemNotFound
-        case errSecUserCanceled,
-             errSecAuthFailed:
-            self = .userCancelled
-        case errSecMissingEntitlement:
-            self = .missingEntitlement
-        default:
-            self = .couldNotAccessKeychain
+        // MARK: CustomStringConvertible
+
+        public var description: String {
+            switch self {
+            case .couldNotAccessKeychain: return "KeychainError.couldNotAccessKeychain"
+            case .emptyKey: return "KeychainError.emptyKey"
+            case .emptyValue: return "KeychainError.emptyValue"
+            case .itemNotFound: return "KeychainError.itemNotFound"
+            case .missingEntitlement: return "KeychainError.missingEntitlement"
+            case .userCancelled: return "KeychainError.userCancelled"
+            }
         }
     }
-
-    // MARK: CustomStringConvertible
-
-    public var description: String {
-        switch self {
-        case .couldNotAccessKeychain: return "KeychainError.couldNotAccessKeychain"
-        case .emptyKey: return "KeychainError.emptyKey"
-        case .emptyValue: return "KeychainError.emptyValue"
-        case .itemNotFound: return "KeychainError.itemNotFound"
-        case .missingEntitlement: return "KeychainError.missingEntitlement"
-        case .userCancelled: return "KeychainError.userCancelled"
-        }
-    }
-
 }

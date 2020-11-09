@@ -18,10 +18,10 @@ import Foundation
 
 
 internal enum Configuration: CustomStringConvertible {
-    case valet(Accessibility)
-    case iCloud(CloudAccessibility)
-    case secureEnclave(SecureEnclaveAccessControl)
-    case singlePromptSecureEnclave(SecureEnclaveAccessControl)
+    case valet(Valet.Accessibility)
+    case iCloud(Valet.CloudAccessibility)
+    case secureEnclave(Valet.SecureEnclaveAccessControl)
+    case singlePromptSecureEnclave(Valet.SecureEnclaveAccessControl)
 
     // MARK: CustomStringConvertible
     
@@ -40,14 +40,14 @@ internal enum Configuration: CustomStringConvertible {
     
     // MARK: Internal Properties
     
-    internal var accessibility: Accessibility {
+    internal var accessibility: Valet.Accessibility {
         switch self {
         case let .valet(accessibility):
             return accessibility
         case let .iCloud(cloudAccessibility):
             return cloudAccessibility.accessibility
         case .secureEnclave, .singlePromptSecureEnclave:
-            return Accessibility.whenPasscodeSetThisDeviceOnly
+            return Valet.Accessibility.whenPasscodeSetThisDeviceOnly
         }
     }
     

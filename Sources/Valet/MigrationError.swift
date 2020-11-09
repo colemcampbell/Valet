@@ -16,32 +16,33 @@
 
 import Foundation
 
+extension Valet {
+    @objc(VALMigrationResult)
+    public enum MigrationError: Int, CaseIterable, CustomStringConvertible, Error, Equatable {
+        /// Migration failed because the keychain query was not valid.
+        case invalidQuery
+        /// Migration failed because a key staged for migration was invalid.
+        case keyToMigrateInvalid
+        /// Migration failed because some data staged for migration was invalid.
+        case dataToMigrateInvalid
+        /// Migration failed because two equivalent keys were staged for migration.
+        case duplicateKeyToMigrate
+        /// Migration failed because a key staged for migration duplicates a key already managed by Valet.
+        case keyToMigrateAlreadyExistsInValet
+        /// Migration failed because removing the migrated data from the keychain failed.
+        case removalFailed
 
-@objc(VALMigrationResult)
-public enum MigrationError: Int, CaseIterable, CustomStringConvertible, Error, Equatable {
-    /// Migration failed because the keychain query was not valid.
-    case invalidQuery
-    /// Migration failed because a key staged for migration was invalid.
-    case keyToMigrateInvalid
-    /// Migration failed because some data staged for migration was invalid.
-    case dataToMigrateInvalid
-    /// Migration failed because two equivalent keys were staged for migration.
-    case duplicateKeyToMigrate
-    /// Migration failed because a key staged for migration duplicates a key already managed by Valet.
-    case keyToMigrateAlreadyExistsInValet
-    /// Migration failed because removing the migrated data from the keychain failed.
-    case removalFailed
+        // MARK: CustomStringConvertible
 
-    // MARK: CustomStringConvertible
-
-    public var description: String {
-        switch self {
-        case .invalidQuery: return "MigrationError.invalidQuery"
-        case .keyToMigrateInvalid: return "MigrationError.keyToMigrateInvalid"
-        case .dataToMigrateInvalid: return "MigrationError.dataToMigrateInvalid"
-        case .duplicateKeyToMigrate: return "MigrationError.duplicateKeyToMigrate"
-        case .keyToMigrateAlreadyExistsInValet: return "MigrationError.keyToMigrateAlreadyExistsInValet"
-        case .removalFailed: return "MigrationError.removalFailed"
+        public var description: String {
+            switch self {
+            case .invalidQuery: return "MigrationError.invalidQuery"
+            case .keyToMigrateInvalid: return "MigrationError.keyToMigrateInvalid"
+            case .dataToMigrateInvalid: return "MigrationError.dataToMigrateInvalid"
+            case .duplicateKeyToMigrate: return "MigrationError.duplicateKeyToMigrate"
+            case .keyToMigrateAlreadyExistsInValet: return "MigrationError.keyToMigrateAlreadyExistsInValet"
+            case .removalFailed: return "MigrationError.removalFailed"
+            }
         }
     }
 }
